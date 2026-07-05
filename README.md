@@ -3,7 +3,10 @@
 Copy your open tabs' URLs to the clipboard (as text, HTML, JSON, or a custom
 template) and paste a list of URLs to open them all at once.
 
-A Manifest V3 rewrite of the original Copy All Urls extension.
+A Manifest V3 rewrite of the original Copy All Urls extension, cloned from:
+
+- https://github.com/vincepare/CopyAllUrl_Chrome
+- https://github.com/alexanderankin/CopyAllUrl_Chrome
 
 ## Load it in Brave / Chrome
 
