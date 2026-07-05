@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Copy All Urls — Options</title>
+<link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <h1>Copy All Urls <span id="version"></span></h1>
+
+  <section>
+    <h2>Copy format</h2>
+    <label><input type="radio" name="format" value="text"> Text — one URL per line</label>
+    <label><input type="radio" name="format" value="html"> HTML — clickable links</label>
+    <label><input type="radio" name="format" value="json"> JSON</label>
+    <label><input type="radio" name="format" value="custom"> Custom template</label>
+
+    <div id="html_options" class="sub">
+      <h3>HTML link text</h3>
+      <label><input type="radio" name="anchor" value="url"> Use the URL as link text</label>
+      <label><input type="radio" name="anchor" value="title"> Use the page title as link text</label>
+      <label class="checkbox"><input type="checkbox" id="mime"> Also copy as rich text (paste formatted links into docs/email)</label>
+    </div>
+
+    <div id="custom_options" class="sub">
+      <h3>Row template</h3>
+      <p class="hint">One row per tab. Use <code>$url</code> and <code>$title</code> as placeholders. Include a newline for one URL per line.</p>
+      <textarea id="format_custom_advanced" rows="4" placeholder="$url&#10;"></textarea>
+    </div>
+  </section>
+
+  <section>
+    <h2>Copy options</h2>
+    <label class="checkbox"><input type="checkbox" id="walk_all_windows"> Copy tabs from all windows</label>
+    <label class="checkbox"><input type="checkbox" id="highlighted_tab_only"> Copy highlighted tabs only</label>
+  </section>
+
+  <section>
+    <h2>Paste options</h2>
+    <label class="checkbox"><input type="checkbox" id="intelligent_paste"> Intelligent paste — find URLs anywhere in the clipboard text</label>
+  </section>
+
+  <section>
+    <h2>Popup behaviour</h2>
+    <label for="default_action">When the popup opens (or a shortcut fires):</label>
+    <select id="default_action">
+      <option value="menu">Show the menu</option>
+      <option value="copy">Copy immediately</option>
+      <option value="paste">Paste immediately</option>
+    </select>
+    <p class="hint">Keyboard shortcuts: <b>Alt+C</b> copy, <b>Alt+V</b> paste (change at <code>brave://extensions/shortcuts</code>).</p>
+  </section>
+
+  <section>
+    <button id="reset">Reset all settings</button>
+    <span id="saved" class="saved"></span>
+  </section>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

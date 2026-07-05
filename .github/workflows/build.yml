@@ -1,0 +1,40 @@
+# CI on every push/PR: syntax-check, unit tests, and a package smoke test.
+# Uploads the packaged .zip so reviewers can load the extension straight from a PR.
+# release.yml re-packages on a tag, so the artifact here is for convenience only.
+
+name: Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+
+      # No dependencies to install — every script only shells out to node/zip.
+      - name: Syntax check
+        run: npm run check
+
+      - name: Test
+        run: npm test
+
+      - name: Package
+        run: npm run package
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: copy-all-urls-unpacked
+          path: dist/*.zip
+          if-no-files-found: error

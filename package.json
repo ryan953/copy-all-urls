@@ -1,0 +1,15 @@
+{
+  "name": "copy-all-urls",
+  "version": "3.0.0",
+  "description": "Copy tab URLs to the clipboard (text, HTML, JSON, or custom). Paste to open multiple URLs at once.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node scripts/check-syntax.mjs",
+    "package": "node scripts/package.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
