@@ -1,8 +1,10 @@
 # Cuts a GitHub Release with the packaged extension attached, and (when Chrome
 # Web Store credentials are configured) publishes the same zip to the Web Store.
 #
-# Trigger by pushing a version tag (e.g. `git tag v3.0.0 && git push origin v3.0.0`),
-# or run manually via the Actions tab against an existing tag.
+# Normally invoked by release-please.yml (via workflow_call) after a release PR is
+# merged. Can also be triggered by pushing a version tag by hand
+# (e.g. `git tag v3.0.0 && git push origin v3.0.0`) or run manually via the
+# Actions tab against an existing tag.
 #
 # The tag version must match `version` in manifest.json (a guard step enforces this),
 # so the tag, the manifest, and the artifact name always agree.
@@ -25,6 +27,12 @@
 name: Release
 
 on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Tag to build and release (e.g. v3.0.0)
+        required: true
+        type: string
   push:
     tags: ["v*"]
   workflow_dispatch:

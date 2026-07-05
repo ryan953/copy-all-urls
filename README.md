@@ -31,14 +31,23 @@ Keyboard shortcuts: **Alt+C** copy, **Alt+V** paste
 
 ## Releasing
 
-1. Bump `version` in **both** `manifest.json` and `package.json`.
-2. Tag and push:
-   ```bash
-   git tag v3.1.0 && git push origin v3.1.0
-   ```
+Releases are automated with [release-please](https://github.com/googleapis/release-please)
+(the JS equivalent of release-plz), driven by
+[Conventional Commits](https://www.conventionalcommits.org/):
 
-The release workflow verifies the tag matches `manifest.json`, packages the
-extension, and publishes a GitHub Release with the zip attached.
+1. Merge normal work into `main` using conventional commit messages
+   (`feat:` -> minor, `fix:` -> patch, `feat!:`/`BREAKING CHANGE` -> major).
+2. release-please keeps an open **release PR** that bumps the version in
+   `package.json` + `manifest.json` and updates `CHANGELOG.md`.
+3. **Merge the release PR** to cut the release: release-please tags it and creates
+   a draft GitHub Release, then the workflow packages the extension, attaches the
+   zip, publishes the release, and (if configured) publishes to the Chrome Web Store.
+
+One-time repo setting: Settings -> Actions -> General -> Workflow permissions ->
+enable "Allow GitHub Actions to create and approve pull requests".
+
+You can still cut a release by hand by pushing a tag that matches
+`manifest.json` (`git tag v3.1.0 && git push origin v3.1.0`).
 
 ### Publishing to the Chrome Web Store
 

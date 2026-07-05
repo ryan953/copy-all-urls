@@ -1,0 +1,58 @@
+# Automates version bumps, CHANGELOG.md, and GitHub Releases with release-please
+# (the JS-ecosystem equivalent of release-plz).
+#
+# On every push to main, release-please opens/updates a "release PR" that bumps
+# the version in package.json + manifest.json and regenerates CHANGELOG.md from
+# the conventional commits merged since the last release. The bump (patch/minor/
+# major) is chosen from commit types (fix -> patch, feat -> minor, ! -> major).
+#
+# Merging that PR makes release-please create the git tag and a *draft* GitHub
+# Release; the release job below then calls release.yml (via workflow_call) to
+# package the extension, attach the zip, publish the release, and — when Chrome
+# Web Store secrets are set — publish to the Web Store.
+#
+# The draft matters: GitHub's immutable-releases feature makes a published
+# release read-only, so the zip can't be attached after publish (HTTP 422).
+# Using workflow_call (not a tag-push event) means the build runs even though
+# release-please created the tag with GITHUB_TOKEN (which does not itself trigger
+# tag-push workflows).
+#
+# One-time setup: Settings -> Actions -> General -> Workflow permissions ->
+# enable "Allow GitHub Actions to create and approve pull requests" so
+# release-please can open the release PR with the default token.
+
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # When a merged release PR created a release, build/attach/publish the zip.
+  release:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/release.yml
+    with:
+      tag: ${{ needs.release-please.outputs.tag_name }}
+    secrets: inherit
