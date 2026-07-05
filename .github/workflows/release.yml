@@ -1,4 +1,5 @@
-# Cuts a GitHub Release with the packaged extension attached.
+# Cuts a GitHub Release with the packaged extension attached, and (when Chrome
+# Web Store credentials are configured) publishes the same zip to the Web Store.
 #
 # Trigger by pushing a version tag (e.g. `git tag v3.0.0 && git push origin v3.0.0`),
 # or run manually via the Actions tab against an existing tag.
@@ -6,9 +7,20 @@
 # The tag version must match `version` in manifest.json (a guard step enforces this),
 # so the tag, the manifest, and the artifact name always agree.
 #
-# The release is created as a *draft*, the zip is uploaded, then it is published.
-# GitHub's immutable-releases feature rejects asset uploads to an already-published
-# release (HTTP 422), so the artifact must be attached while the release is still a draft.
+# The GitHub release is created as a *draft*, the zip is uploaded, then it is
+# published. GitHub's immutable-releases feature rejects asset uploads to an
+# already-published release (HTTP 422), so the artifact must be attached while the
+# release is still a draft.
+#
+# Chrome Web Store publishing is opt-in: the step runs only when CWS_CLIENT_ID is
+# set, so tag pushes still succeed for clones/forks without publishing credentials.
+# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#   CWS_EXTENSION_ID    the Web Store item ID (from the item's dashboard URL)
+#   CWS_CLIENT_ID       OAuth2 client ID
+#   CWS_CLIENT_SECRET   OAuth2 client secret
+#   CWS_REFRESH_TOKEN   OAuth2 refresh token
+#   CWS_PUBLISHER_ID    Chrome Web Store publisher (developer account) ID
+# See https://github.com/fregante/chrome-webstore-upload-keys to mint the tokens.
 
 name: Release
 
@@ -27,6 +39,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # Surfaced for the step-level guard below (secrets can't be read in `if:`).
+    env:
+      CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
     steps:
       - name: Resolve tag
         id: tag
@@ -72,3 +87,18 @@ jobs:
           gh release upload "$tag" dist/*.zip --clobber
           # Flip to published now that the artifact is attached.
           gh release edit "$tag" --draft=false
+
+      - name: Publish to Chrome Web Store
+        if: ${{ env.CWS_CLIENT_ID != '' }}
+        env:
+          EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+        run: |
+          zip="$(ls dist/*.zip)"
+          # Bare command uploads the new version and submits it for publication.
+          npx --yes chrome-webstore-upload-cli@4.0.1 \
+            --source "$zip" \
+            --extension-id "$EXTENSION_ID"

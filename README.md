@@ -29,6 +29,34 @@ Keyboard shortcuts: **Alt+C** copy, **Alt+V** paste
 | `lib/formats.js` | Pure formatters (text/html/json/custom) + paste URL extraction |
 | `lib/tabs.js` | Tab querying/filtering and opening URLs |
 
+## Releasing
+
+1. Bump `version` in **both** `manifest.json` and `package.json`.
+2. Tag and push:
+   ```bash
+   git tag v3.1.0 && git push origin v3.1.0
+   ```
+
+The release workflow verifies the tag matches `manifest.json`, packages the
+extension, and publishes a GitHub Release with the zip attached.
+
+### Publishing to the Chrome Web Store
+
+The release also uploads to the Chrome Web Store, but only when these repository
+secrets are set (Settings -> Secrets and variables -> Actions). Without them the
+step is skipped and the GitHub Release still succeeds.
+
+| Secret | What it is |
+|--------|------------|
+| `CWS_EXTENSION_ID` | The Web Store item ID (from the item's dashboard URL) |
+| `CWS_CLIENT_ID` | OAuth2 client ID |
+| `CWS_CLIENT_SECRET` | OAuth2 client secret |
+| `CWS_REFRESH_TOKEN` | OAuth2 refresh token |
+| `CWS_PUBLISHER_ID` | Chrome Web Store publisher (developer account) ID |
+
+See [chrome-webstore-upload-keys](https://github.com/fregante/chrome-webstore-upload-keys)
+for minting the OAuth tokens.
+
 ## What changed from the MV2 original
 
 - Persistent background **page** → **service worker** (`type: module`).
