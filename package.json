@@ -1,6 +1,6 @@
 {
   "name": "copy-all-urls",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Copy tab URLs to the clipboard (text, HTML, JSON, or custom). Paste to open multiple URLs at once.",
   "private": true,
   "type": "module",
